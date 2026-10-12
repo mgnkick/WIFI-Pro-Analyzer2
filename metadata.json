@@ -1,0 +1,6 @@
+{
+  "name": "WiFi Expert - Помощник инженера связи",
+  "description": "Профессиональный инструмент инженера провайдера: сканер Wi-Fi, диагностика LAN, спидтест (Яндекс, Ookla, 2ip), генератор отчетов для техподдержки, роуминг 802.11k/v/r и анализатор радиоэфира для Android.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

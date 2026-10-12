@@ -1,0 +1,24 @@
+{
+  "appId": "ru.wifiexpert.helper",
+  "appName": "WiFi Expert",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true,
+    "allowNavigation": [
+      "192.168.1.1",
+      "192.168.0.1",
+      "192.168.*.*",
+      "10.*.*.*",
+      "172.16.*.*",
+      "*.sberbank.ru",
+      "*.yandex.ru",
+      "*.2ip.ru"
+    ]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

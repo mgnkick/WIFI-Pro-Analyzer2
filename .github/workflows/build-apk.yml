@@ -1,0 +1,84 @@
+name: Сборка Android APK (WiFi Expert)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Сборка APK для Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 2. Настройка Node.js (v22 LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 3. Настройка Java JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: 4. Установка Android SDK
+        run: |
+          echo "Путь Android SDK: $ANDROID_HOME"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
+
+      - name: 5. Установка NPM зависимостей
+        run: npm install --legacy-peer-deps
+
+      - name: 6. Сборка веб-приложения (Vite Production Build)
+        run: npm run build
+
+      - name: 7. Инициализация Capacitor Android
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: 8. Настройка разрешений Wi-Fi и Cleartext в AndroidManifest.xml
+        run: |
+          MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST_FILE" ]; then
+            sed -i 's/<application /<application android:usesCleartextTraffic="true" /' "$MANIFEST_FILE" || true
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />\n    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" />' "$MANIFEST_FILE" || true
+          fi
+
+      - name: 9. Сборка Debug APK через Gradle
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: 10. Поиск готового APK
+        id: find_apk
+        run: |
+          APK_PATH=$(find android/app/build/outputs/apk/ -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          fi
+          echo "Найден APK: $APK_PATH"
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: 11. Загрузка APK в Artifacts GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiFiExpert-Android-Debug
+          path: ${{ steps.find_apk.outputs.apk_path }}
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: 12. Отчет в лог GitHub
+        run: |
+          echo "### Сборка Android APK завершена успешно!" >> $GITHUB_STEP_SUMMARY
+          echo "APK готов для установки на смартфон." >> $GITHUB_STEP_SUMMARY
+          echo "Скачайте архив **WiFiExpert-Android-Debug.zip** из раздела Artifacts." >> $GITHUB_STEP_SUMMARY
