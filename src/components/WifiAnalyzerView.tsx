@@ -839,7 +839,7 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
         </div>
 
         {viewMode === 'ssid' && (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {filteredSsidGroups.map(group => {
               const isExpanded = expandedSsids.has(group.ssid);
               return (
@@ -853,42 +853,40 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
                 >
                   <div
                     onClick={() => toggleSsidExpand(group.ssid)}
-                    className="p-3.5 sm:p-4 flex flex-col gap-2.5 cursor-pointer w-full max-w-full overflow-hidden"
+                    className="p-3 sm:p-3.5 flex flex-col gap-2 cursor-pointer w-full max-w-full overflow-hidden"
                   >
                     <div className="flex items-start justify-between gap-3 w-full">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className={`p-2 rounded-lg shrink-0 ${
-                          group.deviceRole === 'mesh'
-                            ? 'bg-purple-500/15 text-purple-400 border border-purple-500/30'
-                            : group.deviceRole === 'repeater'
-                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                              : 'bg-slate-700/50 text-slate-300'
-                        }`}>
-                          {group.deviceRole === 'mesh' ? <Share2 className="w-4 h-4" /> :
-                           group.deviceRole === 'repeater' ? <Repeat className="w-4 h-4" /> :
-                           <Router className="w-4 h-4" />}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-base sm:text-lg text-slate-100 break-words leading-tight">
+                            {group.ssid}
+                          </span>
+                          {group.hasConnectedNode && (
+                            <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded bg-cyan-500 text-white shrink-0">
+                              Активная
+                            </span>
+                          )}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold shrink-0 ${
+                            group.deviceRole === 'mesh'
+                              ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
+                              : group.deviceRole === 'repeater'
+                                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                : 'bg-slate-700/50 text-slate-300'
+                          }`}>
+                            {group.deviceRole === 'mesh' ? 'Mesh' : group.deviceRole === 'repeater' ? 'Репитер' : 'Точка'}
+                          </span>
                         </div>
-                        <div className="font-extrabold text-base sm:text-lg text-slate-100 break-words leading-snug">
-                          {group.ssid}
+                        <div className="flex items-center justify-between gap-2 pt-0.5">
+                          <div className="flex items-center gap-2.5">
+                            <SignalValue levelDbm={group.bestLevel} size="sm" showLabel={true} />
+                            <span className="text-xs text-slate-400 font-mono truncate">
+                              {group.bands.join(', ')} • кан. {group.channels.join(', ')}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      {group.hasConnectedNode && (
-                        <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded bg-cyan-500 text-white shrink-0">
-                          Активная
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-700/40 w-full gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <SignalValue levelDbm={group.bestLevel} size="md" showLabel={false} />
-                        <span className="text-xs text-slate-400 font-mono truncate">
-                          {group.bands.join(', ')} • кан. {group.channels.join(', ')}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0 pt-1">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -896,7 +894,7 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
                             const targetNode = group.nodes.find(n => n.isConnected) || group.nodes[0];
                             if (targetNode) handleConnectNetwork(targetNode.ssid, e);
                           }}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/40 transition-all cursor-pointer active:scale-95"
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/40 transition-all cursor-pointer active:scale-95"
                           title="Подключиться"
                         >
                           Wi-Fi
@@ -909,18 +907,18 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
                   </div>
 
                   {isExpanded && (
-                    <div className="px-3.5 sm:px-4 pb-4 pt-2 border-t border-slate-700/50 space-y-2.5">
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    <div className="px-3 sm:px-3.5 pb-3.5 pt-2 border-t border-slate-700/50 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
                         <span>Точки доступа (BSSID):</span>
-                        <span className="text-[10px] text-slate-500 lowercase">нажмите коприовать MAC</span>
+                        <span className="text-[10px] text-slate-500 lowercase">нажмите скопировать MAC</span>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {group.nodes.map(node => {
                           const isThisConnected = node.isConnected;
                           return (
                             <div
                               key={node.bssid}
-                              className={`p-3 rounded-xl border text-xs transition-all ${
+                              className={`p-2.5 rounded-xl border text-xs transition-all ${
                                 isThisConnected
                                   ? 'bg-cyan-500/10 border-cyan-500/50 ring-1 ring-cyan-500/30'
                                   : 'bg-slate-900/60 border-slate-700/70'
@@ -956,20 +954,6 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
                                 </div>
                                 <SignalValue levelDbm={node.level} size="sm" />
                               </div>
-                              <div className="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
-                                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono">
-                                  {node.band}
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                                  кан. {node.channel} ({node.channelWidth} МГц)
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                                  {node.standard}
-                                </span>
-                                <span className="ml-auto font-mono text-slate-400">
-                                  ~{node.distanceMeters || 2}м
-                                </span>
-                              </div>
                             </div>
                           );
                         })}
@@ -989,16 +973,16 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
               return (
                 <div
                   key={net.bssid}
-                  className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
+                  className={`p-3 sm:p-3.5 rounded-xl border transition-all space-y-2 ${
                     isConnected
                       ? 'bg-cyan-950/20 border-cyan-500/40 ring-1 ring-cyan-500/20'
                       : 'bg-slate-800/50 hover:bg-slate-800/80 border-slate-700/60'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-sm text-slate-100 truncate block">
+                    <div className="min-w-0 space-y-1 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-extrabold text-base text-slate-100 break-words leading-tight">
                           {net.ssid}
                         </span>
                         {isConnected && (
@@ -1007,77 +991,36 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-xs text-slate-300 font-mono">
-                          BSSID: {net.bssid}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => handleCopyBssid(net.bssid, e)}
-                          className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
-                          title="Копировать BSSID"
-                        >
-                          {copiedBssid === net.bssid ? (
-                            <Check className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )}
-                        </button>
-                        {net.vendor && (
-                          <span className="text-xs text-slate-400 truncate">
-                            • {net.vendor}
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap gap-1">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                          net.deviceRole === 'mesh'
-                            ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
-                            : net.deviceRole === 'router_with_ap'
-                              ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30'
-                              : net.deviceRole === 'repeater'
-                                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                                : 'bg-slate-700/60 text-slate-300'
-                        }`}>
-                          {net.nodeLabel || 'Точка'}
-                        </span>
-                        {net.roamingSupported && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" title="Поддержка 802.11k/v/r">
-                            802.11k/v/r
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2">
+                        <SignalValue levelDbm={net.level} size="sm" showLabel={true} />
                       </div>
                     </div>
-                    <SignalValue levelDbm={net.level} size="sm" />
-                  </div>
-                  
-                  <div className="mt-3 pt-3 border-t border-slate-700/50 flex flex-wrap items-center gap-1.5 text-[11px]">
-                    <span className="px-2 py-0.5 rounded bg-slate-700/60 text-slate-300 font-mono">
-                      {net.band} • кан. {net.channel} ({net.channelWidth} МГц)
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-slate-700/60 text-slate-300">
-                      {net.standard}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded font-medium ${
-                      net.securityType === 'Open'
-                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                        : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                    }`}>
-                      {net.securityType === 'WPA2' ? 'WPA2-PSK (AES)' : net.securityType}
-                    </span>
-                    <span className="text-slate-400 ml-auto font-mono text-[10px]">
-                      ~{net.distanceMeters || 3}м
-                    </span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => handleConnectNetwork(net.ssid, e)}
-                    className="w-full mt-3 py-1.5 px-3 rounded-xl text-xs font-bold bg-cyan-500/15 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                  >
-                    <Wifi className="w-3.5 h-3.5" />
-                    <span>{net.isConnected ? 'Настройки Wi-Fi' : 'Подключиться'}</span>
-                  </button>
+                  <div className="flex items-center gap-1.5 pt-1 text-xs text-slate-300 font-mono flex-wrap">
+                    <span className="text-[11px] text-slate-400">BSSID: {net.bssid}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCopyBssid(net.bssid, e)}
+                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                      title="Копировать BSSID"
+                    >
+                      {copiedBssid === net.bssid ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
+                  
+                  <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {net.band} • кан. {net.channel} • {net.securityType}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleConnectNetwork(net.ssid, e)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/40 transition-all cursor-pointer active:scale-95 shrink-0"
+                    >
+                      {net.isConnected ? 'Настройки' : 'Подключиться'}
+                    </button>
+                  </div>
                 </div>
               );
             })}
