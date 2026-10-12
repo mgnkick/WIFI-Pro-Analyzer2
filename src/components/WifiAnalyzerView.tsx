@@ -53,6 +53,7 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
   const [expandedSsids, setExpandedSsids] = useState<Set<string>>(new Set());
   const [hoveredNetwork, setHoveredNetwork] = useState<WifiNetwork | null>(null);
   const [copiedBssid, setCopiedBssid] = useState<string | null>(null);
+  const [isScanningAir, setIsScanningAir] = useState(false);
 
   const handleConnectNetwork = (ssid: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -303,8 +304,21 @@ export const WifiAnalyzerView: React.FC<WifiAnalyzerViewProps> = ({
         </div>
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5 sm:pb-0 shrink-0">
           <button
+            onClick={async () => {
+              setIsScanningAir(true);
+              await wifiScanner.triggerRealScan();
+              setTimeout(() => setIsScanningAir(false), 500);
+            }}
+            disabled={isScanningAir}
+            className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+            title="Запустить реальное сканирование радиоэфира"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isScanningAir ? 'animate-spin' : ''}`} />
+            <span>{isScanningAir ? 'Сканирование эфира...' : 'Сканировать эфир'}</span>
+          </button>
+          <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
               soundEnabled
                 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700/80'

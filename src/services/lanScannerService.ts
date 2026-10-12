@@ -101,6 +101,36 @@ export async function scanLocalSubnet(
   const startTime = performance.now();
   const totalCount = 256;
   const foundDevices: LanDevice[] = [];
+
+  try {
+    const res = await fetch(`/api/lan-scan?gateway=${encodeURIComponent(gatewayIp)}`, { signal });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.devices)) {
+        for (const dev of data.devices) {
+          foundDevices.push({
+            ip: dev.ip,
+            mac: dev.mac || 'AA:BB:CC:DD:EE:FF',
+            hostname: dev.hostname || `Устройство (${dev.ip})`,
+            vendor: dev.vendor || 'Сетевое устройство',
+            category: dev.category || 'other',
+            categoryLabel: dev.categoryLabel || 'Устройство',
+            latencyMs: dev.latencyMs || 1.0,
+            status: 'online',
+            isGateway: dev.isGateway || false,
+            openPorts: dev.openPorts || [80],
+            openServices: dev.openServices || ['HTTP'],
+            lastSeen: 'Только что',
+            details: {
+              webUiUrl: dev.openPorts?.includes(80) ? `http://${dev.ip}` : undefined,
+              description: dev.isGateway ? 'Главный шлюз сети' : 'Активное устройство в локальной сети',
+            },
+          });
+        }
+      }
+    }
+  } catch {}
+
   const isMobile = typeof navigator !== 'undefined' && /android|iphone|ipad|mobile/i.test(navigator.userAgent);
   const currentDeviceIp = `${prefix}105`;
   const gwLastOctet = gatewayIp.split('.')[3] || '1';
